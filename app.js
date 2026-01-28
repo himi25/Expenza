@@ -1,6 +1,5 @@
 const express= require('express')
 const app=express()
-const {addExpense} =require('./controllers/Expense')
 const connectDB= require('./config/db')
 const PORT = 3000;
 app.use(express.json())

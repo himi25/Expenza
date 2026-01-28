@@ -45,6 +45,7 @@ res.status(400).json({message:'Error adding expense',error:error.message})
 }
 const showExpenses=async(req,res)=>{
     try{
+        
         const expenses= await Expense.find()
         res.status(200).json({message:'Expense is here',expenses})
     }
@@ -52,4 +53,44 @@ const showExpenses=async(req,res)=>{
         res.status(400).json({message:'Error getting the expense',error:error.message})
     }
 }
-module.exports= {addExpense,showExpenses}
+const getTotalExpenses=async(req,res)=>{
+    try {
+        const result=await Expense.aggregate([
+            {$group:
+                {
+                 _id:null,
+                 totalAmount:{$sum:'$amount'}
+                }
+
+            }
+        ])
+        const total = result[0]?.totalAmount || 0
+        res.status(200).json({message:'total expense calculated',totalExpense:total})
+    }
+    catch(error){
+        res.status(400).json({message:'Error calculating total expense',error:error.message})
+    }
+}
+const getCategoryWiseExpenses = async (req, res) => {
+    try {
+      const result = await Expense.aggregate([
+        {
+          $group: {
+            _id: '$category',
+            totalAmount: { $sum: '$amount' }
+          }
+        }
+      ])
+  
+      res.status(200).json({
+        message: 'Category-wise expense summary',
+        summary: result
+      })
+    } catch (error) {
+      res.status(400).json({
+        message: 'Error calculating category-wise expense',
+        error: error.message
+      })
+    }
+  }
+module.exports= {addExpense,showExpenses,getTotalExpenses,getCategoryWiseExpenses}
